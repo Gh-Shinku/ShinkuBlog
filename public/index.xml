@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ShinkuBlog</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on ShinkuBlog</description>
+    <image>
+      <title>ShinkuBlog</title>
+      <url>http://localhost:1313/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>http://localhost:1313/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- 0.146.6</generator>
+    <language>en</language>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title></title>
+      <link>http://localhost:1313/posts/c&#43;&#43;-overview/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/c&#43;&#43;-overview/</guid>
+      <description>&lt;h1 id=&#34;c-overview&#34;&gt;C++ Overview&lt;/h1&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;一语法与特性&#34;&gt;一、语法与特性&lt;/h2&gt;
+&lt;h3 id=&#34;reference&#34;&gt;Reference&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://stackoverflow.com/questions/3954764/how-are-references-implemented-internally&#34;&gt;How are references implemented internally?&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;C++ 区别于 C 语言的一大特性就是引用。相信很多人都听过“引用就是给变量取一个别名”这个说法，但请别忽视了前提 &lt;em&gt;just for convenience&lt;/em&gt;。事实上引用的底层是用指针实现的，只有通过地址才能真正获取到变量的值。引用变量表现地就如同它是所引用变量的别名，它有几个关键的性质，不可修改引用对象（类似于 const pointer 的效果，注意不是 pointer to const）、不可拷贝、不可移动、获取不到其地址（它在栈中占用和指针同等大小的空间，存储的就是引用变量的地址）等。&lt;/p&gt;
+&lt;p&gt;在模板编程中，事情发生了变化，你可能希望容器中能存储引用而非实际的对象（避免昂贵的拷贝代价），却发现引用既不 copyable 也不 movable，于是 C++ 引入了 &lt;code&gt;std::reference_wrapper&lt;/code&gt; 用于完成这件事。为此，你需要显式地使用 &lt;code&gt;std::ref&lt;/code&gt; 来构造引用而非在函数传参时依靠左值或右值引用去捕获传入的实参。&lt;/p&gt;
+&lt;h4 id=&#34;值类别&#34;&gt;值类别&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;左值（lvalue）：&lt;/strong&gt; 可以取地址的持久对象。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;右值（rvalue）：&lt;/strong&gt; 不能取地址的临时对象或纯右值。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;prvalue（pure value）：&lt;/strong&gt; 纯右值，临时对象或字面量。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;xvalue（expiring value）：&lt;/strong&gt; 将亡值，如返回局部对象的引用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;非常量常量引用&#34;&gt;非常量/常量引用&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;非常量引用&lt;/strong&gt;（&lt;code&gt;T&amp;amp;&lt;/code&gt;）：&lt;/p&gt;
+&lt;p&gt;只能绑定到左值。这是因为非常量引用允许修改其所引用的对象，而右值通常是临时的，不能被修改。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;常量引用&lt;/strong&gt; (&lt;code&gt;const T&amp;amp;&lt;/code&gt;)：&lt;/p&gt;
+&lt;p&gt;可以绑定到左值和右值。由于常量引用保证不会通过该引用修改对象，因此它可以安全地引用临时对象（右值）。&lt;/p&gt;
+&lt;h4 id=&#34;移动语义move-semantic&#34;&gt;移动语义（Move Semantic）&lt;/h4&gt;
+&lt;p&gt;在一些动态内存管理类（比如 std::vector）中，进行扩容时，将旧的内存内容复制到新开辟内存中的过程是无谓的，更好的方式是移动元素。&lt;/p&gt;
+&lt;h5 id=&#34;右值引用&#34;&gt;右值引用&lt;/h5&gt;
+&lt;blockquote&gt;
+&lt;p&gt;一个简单的判断标准是，&lt;code&gt;能对该表达式取地址吗 ? 左值表达式 : 右值表达式&lt;/code&gt;
+&lt;a href=&#34;https://www.cnblogs.com/qicosmos/p/4283455.html&#34;&gt;右值引用说明&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;右值引用绑定到一个将亡值（将要销毁的元素），左值引用绑定到一个持久值。无论是左值引用还是右值引用，都是引用，只是能绑定到的值类型不同。（引用之间是可以进行类型转换的）&lt;/p&gt;
+&lt;p&gt;语法上的区别，左值引用：&lt;code&gt;&amp;amp;&lt;/code&gt;，右值引用：&lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;std::move&lt;/code&gt; 将左值表达式转换为右值表达式（从效果上看）。对一个对象调用 &lt;code&gt;move&lt;/code&gt; 后，不能再使用该对象的值。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;通用引用&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;语法：T&amp;amp;&amp;amp; (T 是模板类型)&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
